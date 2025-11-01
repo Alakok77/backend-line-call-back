@@ -47,7 +47,7 @@
         console.log("📦 Payload:", payload);
 
         // 5️⃣ ยิงข้อมูลไปยัง backend
-        const res = await fetch(`${BACKEND_URL}/api/customer/details`, {
+        const res = await fetch(`${BACKEND_URL}/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
