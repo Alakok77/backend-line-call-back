@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINE Login – Send user info</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h2>LINE Login Demo</h2>
+  <button id="loginBtn">Login ด้วย LINE</button>
+  <div id="result" style="margin-top:20px;"></div>
+
+  <script>
+    // 🟩 ใส่ LIFF ID ของคุณ
+    const LIFF_ID = "ใส่_LIFF_ID_ของคุณ";
+    // 🟩 ใส่ URL ของ backend (อย่าใส่ / ต่อท้าย)
+    const BACKEND_URL = "https://mirier-vagrantly-regena.ngrok-free.dev";
+
+    async function loginWithLINE() {
+      try {
+        // 1️⃣ เริ่มต้น LIFF
+        await liff.init({ liffId: LIFF_ID });
+
+        // 2️⃣ ถ้ายังไม่ login → ให้ login ก่อน
+        if (!liff.isLoggedIn()) {
+          liff.login({ redirectUri: window.location.href });
+          return;
+        }
+
+        // 3️⃣ ดึงข้อมูลโปรไฟล์ผู้ใช้
+        const profile = await liff.getProfile();
+        const payload = {
+          userId: profile.userId,
+          name: profile.displayName,
+          timestamp: new Date().toISOString()
+        };
+
+        // 4️⃣ แสดงบนหน้าเว็บ
+        document.getElementById("result").innerHTML = `
+          <p><b>UserID:</b> ${payload.userId}</p>
+          <p><b>Name:</b> ${payload.name}</p>
+          <p><b>Timestamp:</b> ${payload.timestamp}</p>
+          <p style="color:gray;">กำลังส่งข้อมูลไปยัง backend...</p>
+        `;
+
+        console.log("📦 Payload:", payload);
+
+        // 5️⃣ ยิงข้อมูลไปยัง backend
+        const res = await fetch(`${BACKEND_URL}/api/customer/details`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+
+        // 6️⃣ ตรวจสอบผลลัพธ์
+        if (res.ok) {
+          console.log("✅ ส่งข้อมูลสำเร็จ:", text);
+          document.getElementById("result").innerHTML += `
+            <p style="color:green;">✅ ส่งข้อมูลสำเร็จ</p>
+          `;
+        } else {
+          console.warn("⚠️ ส่งข้อมูลไม่สำเร็จ:", text);
+          document.getElementById("result").innerHTML += `
+            <p style="color:orange;">⚠️ ส่งข้อมูลไม่สำเร็จ (status: ${res.status})</p>
+          `;
+        }
+
+      } catch (err) {
+        console.error("💥 Error:", err);
+        document.getElementById("result").innerHTML += `
+          <p style="color:red;">💥 เกิดข้อผิดพลาด: ${err.message}</p>
+        `;
+      }
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", loginWithLINE);
+  </script>
+</body>
+</html>
