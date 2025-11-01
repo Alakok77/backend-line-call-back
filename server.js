@@ -2,21 +2,22 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// ✅ แปลง __dirname สำหรับ ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// ✅ ให้เสิร์ฟไฟล์ static ทั้งหมดในโฟลเดอร์นี้ (index.html, css, js ฯลฯ)
+// ✅ เสิร์ฟไฟล์ static (liff.html, js, css, etc.)
 app.use(express.static(__dirname));
 
-// ✅ ถ้ามีการเข้า / หรือ /liff.html ให้ส่ง index.html กลับไป
+// ✅ ถ้ามีการเข้าหน้า root ("/") หรือ "/liff.html" → ให้ส่งไฟล์ liff.html
 app.get(["/", "/liff.html"], (req, res) => {
   res.sendFile(path.join(__dirname, "liff.html"));
 });
 
-// ✅ Start server
-const PORT = 3000;
+// ✅ start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
