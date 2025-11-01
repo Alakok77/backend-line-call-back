@@ -12,7 +12,7 @@ app.use(express.static(__dirname));
 
 // ✅ ถ้ามีการเข้า / หรือ /liff.html ให้ส่ง index.html กลับไป
 app.get(["/", "/liff.html"], (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "liff.html"));
 });
 
 // ✅ Start server
